@@ -1,0 +1,15 @@
+{{extend 'layout.html'}}
+
+<h3>Searching  University</h3>
+<table class="table">
+    {{for row in rows:}}
+    <tr>
+        <h2><td><a href="{{=URL('show',args=row.iitg_webmail_id)}}">{{=row.iitg_webmail_id}} </a></td></h2>
+        
+        <td>{{=row.dept}}    </td>
+        <td>{{=row.univ}}      </td>
+        <td>{{=row.start_year}}     </td>
+        <td>{{=row.end_year}}          </td>
+    </tr>
+    {{pass}}
+</table>

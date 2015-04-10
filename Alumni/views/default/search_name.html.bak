@@ -1,0 +1,18 @@
+{{extend 'layout.html'}}
+
+<h3>Searching By name</h3>
+<table class="table">
+    {{for row in rows:}}
+    <tr>
+        <td>{{=row.name_title}}</td>
+        <td>{{=row.name_first}}</td>
+        <td>{{=row.name_last}}</td>
+        <td>{{=row.alternate_email_id}}</td>
+        <td>{{=row.curr_addr_city}}</td>
+        <td>{{=row.curr_addr_state}}</td>
+        <td>{{=row.curr_addr_country}}</td>
+        <td>{{=row.curr_emp_role}}</td>
+        <td>{{=row.curr_emp_comp}}</td>
+    </tr>
+    {{pass}}
+</table>

@@ -1,0 +1,24 @@
+{{extend 'layout.html'}}
+
+<h1>Welcome</h1>
+<br>
+<br>
+<input type='button' value="EDIT" class="homebutton" id="btnHome" onClick="location.href='{{=URL('alumni_edit')}}'" />
+<br>
+<br>
+<input type='button' value="SEARCH QUERIES" class="homebutton" id="btnHome" onClick="location.href='{{=URL('alumni_search')}}'" />
+<br>
+<br>
+
+{{=row2.name_title}} {{=row2.name_first}} {{=row2.name_last}}<br>
+Email id: {{=row2.alternate_email_id}}<br>
+Phone number: {{=row2.phone_no}}<br>
+Date of Birth: {{=row2.dob}}<br>
+Address:  {{=row2.curr_addr_line1}} , {{=row2.curr_addr_line2}}<br>
+City: {{=row2.curr_addr_city}}<br>
+State: {{=row2.curr_addr_state}}<br>
+Country: {{=row2.curr_addr_country}}<br>
+Employement role: {{=row2.curr_emp_role}}<br>
+Employement company: {{=row2.curr_emp_comp}}<br>
+Industry: {{=row2.curr_emp_industry}}<br>
+Working from: {{=row2.cur_emp_start}}<br>

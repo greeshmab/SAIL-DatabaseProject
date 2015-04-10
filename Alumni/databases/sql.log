@@ -1,0 +1,124 @@
+timestamp: 2015-04-03T15:35:08.310384
+CREATE TABLE auth_user(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name CHAR(128),
+    last_name CHAR(128),
+    email CHAR(512),
+    password CHAR(512),
+    registration_key CHAR(512),
+    reset_password_key CHAR(512),
+    registration_id CHAR(512)
+);
+success!
+timestamp: 2015-04-03T15:35:08.364084
+CREATE TABLE auth_group(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    role CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2015-04-03T15:35:08.414553
+CREATE TABLE auth_membership(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE
+);
+success!
+timestamp: 2015-04-03T15:35:08.595653
+CREATE TABLE auth_permission(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    group_id INTEGER REFERENCES auth_group (id) ON DELETE CASCADE,
+    name CHAR(512),
+    table_name CHAR(512),
+    record_id INTEGER
+);
+success!
+timestamp: 2015-04-03T15:35:08.744277
+CREATE TABLE auth_event(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    time_stamp TIMESTAMP,
+    client_ip CHAR(512),
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    origin CHAR(512),
+    description TEXT
+);
+success!
+timestamp: 2015-04-03T15:35:08.781672
+CREATE TABLE auth_cas(
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER REFERENCES auth_user (id) ON DELETE CASCADE,
+    created_on TIMESTAMP,
+    service CHAR(512),
+    ticket CHAR(512),
+    renew CHAR(1)
+);
+success!
+timestamp: 2015-04-03T15:36:19.634991
+CREATE TABLE admin_log_in(
+    admin_id CHAR(512) NOT NULL,
+    password CHAR(512),
+    PRIMARY KEY(admin_id)) ;
+success!
+timestamp: 2015-04-03T15:36:19.675095
+CREATE TABLE alumni_basic_data(
+    iitg_webmail_id CHAR(512) NOT NULL,
+    name_title CHAR(512),
+    name_first CHAR(512),
+    name_last CHAR(512),
+    alternate_email_id CHAR(512),
+    phone_no CHAR(512),
+    dob DATE,
+    curr_addr_line1 CHAR(512),
+    curr_addr_line2 CHAR(512),
+    curr_addr_city CHAR(512),
+    curr_addr_state CHAR(512),
+    curr_addr_country CHAR(512),
+    curr_emp_role CHAR(512),
+    curr_emp_comp CHAR(512),
+    curr_emp_industry CHAR(512),
+    cur_emp_start DATE,
+    PRIMARY KEY(iitg_webmail_id)) ;
+success!
+timestamp: 2015-04-03T15:36:19.720765
+CREATE TABLE user_log_in(
+    iitg_webmail_id CHAR(512) NOT NULL,
+    password CHAR(512),
+    PRIMARY KEY(iitg_webmail_id)) ;
+success!
+timestamp: 2015-04-03T15:36:19.814135
+CREATE TABLE past_employment(
+    iitg_webmail_id CHAR(512) NOT NULL,
+    emp_no INTEGER NOT NULL,
+    role CHAR(512),
+    company_name CHAR(512),
+    city CHAR(512),
+    industry CHAR(512),
+    start_year DATE,
+    end_year DATE,
+    PRIMARY KEY(iitg_webmail_id, emp_no)) ;
+success!
+timestamp: 2015-04-03T15:36:19.975118
+CREATE TABLE iitg_deg(
+    iitg_webmail_id CHAR(512) NOT NULL,
+    deg CHAR(512) NOT NULL,
+    dept CHAR(512),
+    start_year DATE,
+    end_year DATE,
+    PRIMARY KEY(iitg_webmail_id, deg)) ;
+success!
+timestamp: 2015-04-03T15:36:20.062479
+CREATE TABLE othr_univ_degree(
+    iitg_webmail_id CHAR(512) NOT NULL,
+    deg CHAR(512) NOT NULL,
+    dept CHAR(512),
+    univ CHAR(512),
+    start_year DATE,
+    end_year DATE,
+    PRIMARY KEY(iitg_webmail_id, deg)) ;
+success!
+success!
+success!
+success!
+success!
+success!
+success!

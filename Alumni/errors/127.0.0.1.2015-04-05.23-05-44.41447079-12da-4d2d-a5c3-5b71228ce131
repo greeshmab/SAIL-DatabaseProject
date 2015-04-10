@@ -1,0 +1,560 @@
+(dp1
+S'output'
+p2
+S"<class 'sqlite3.IntegrityError'> NOT NULL constraint failed: othr_univ_degree.deg"
+p3
+sS'layer'
+p4
+S'/home/greeshma/Downloads/web2py/applications/final2/controllers/default.py'
+p5
+sS'code'
+p6
+S'# -*- coding: utf-8 -*-\n# this file is released under public domain and you can use without limitations\n\n#########################################################################\n## This is a sample controller\n## - index is the default action of any application\n## - user is required for authentication and authorization\n## - download is for downloading files uploaded in the db (does streaming)\n## - api is an example of Hypermedia API support and access control\n#########################################################################\n\ndef index():\n    """\n    example action using the internationalization operator T and flash\n    rendered by views/default/index.html or views/generic.html\n\n    if you need a simple wiki simply replace the two lines below with:\n    return auth.wiki()\n    \n    response.flash = T("Welcome to web2py!")\n    return dict(message=T(\'Hello World\'))\n    \n    form1 = XML("<select><option value=\\"volvo\\">Volvo</option><option value=\\"saab\\">Saab</option><option value=\\"mercedes\\">Mercedes</option></select>")\n    form1=FORM(INPUT(_type=\'select\',_name=\'user\',_value=\'Professor\'),\'Professor\',_action=URL(\'checking\'))\n    """\n    form = SQLFORM.factory(Field(\'username\',requires=IS_EMAIL()),\n                           Field(\'password\',\'password\',\n                                 requires=IS_NOT_EMPTY()),\n                           submit_button=\'Login\').process()\n    if form.accepted:\n        response.flash = \'Accepted IT\'\n        session.b = form.vars.username\n        session.a = form.vars.password\n        redirect(URL(\'login_verify\'))\n        return locals()\n\n    elif form.errors:\n        session.flash = \'Errors..!\'\n    else:\n        response.flash = \'welcome bro\'\n    return locals()\ndef login():\n    form = SQLFORM.factory(Field(\'username\',requires=IS_EMAIL()),\n                             Field(\'password\',\'password\'),\n                             submit_button=\'Login\').process()\n    return locals()\ndef login_verify():\n    if(session.b==\'admin@gmail.com\'):\n        user_type = \'admin\'\n    else:\n        user_type=\'alumni\'\n    if(user_type==\'admin\'):\n        if db.admin_log_in(admin_id=session.b)==None:\n            redirect(URL(\'index\'))\n        else:\n            pas = db.admin_log_in(admin_id=session.b).password\n            if pas == session.a:\n                session.flash = \'welcome.!\'\n                redirect(URL(\'admin_r\'))\n            else:\n                session.flash=\'Invalid Credentials\'\n                redirect(URL(\'index\'))\n\n    if(user_type==\'alumni\'):\n        session.flash = \'welcome mike batio.!\'\n        if db.user_log_in(iitg_webmail_id=session.b)==None:\n            redirect(URL(\'index\'))\n        else:\n            pas = db.user_log_in(iitg_webmail_id=session.b).password\n            if pas == session.a:\n                session.flash = \'welcome.!\'\n                redirect(URL(\'alumni\'))\n            else:\n                session.flash=\'Invalid Credentials\'\n                redirect(URL(\'index\'))\n\n\ndef alumni():\n    if db.alumni_basic_data(iitg_webmail_id=session.b)==None:\n        session.c=1\n    else:\n        session.c=2\n        session.flash=\'Invalid Credentials\'\n        """\n        intermediate page\n        """\n    if db.othr_univ_degree(iitg_webmail_id=session.b)==None:\n        session.d=1\n    else:\n        session.d=2\n        session.flash=\'Invalid Credentials\'\n    if db.iitg_deg(iitg_webmail_id=session.b)==None:\n        session.e=1\n    else:\n        session.e=2\n        session.flash=\'Invalid Credentials\'\n    if db.past_employment(iitg_webmail_id=session.b)==None:\n        session.f=1\n    else:\n        session.f=2\n        session.flash=\'Invalid Credentials\'\n    redirect(URL(\'alumni_intm_page\'))\n    return locals()\ndef alumni_intm_page():\n    if db.alumni_basic_data(iitg_webmail_id=session.b)==None:\n        session.flash=\'yoyo\'\n    else:\n        redirect(URL(\'prin\'))\n        \n    return locals()\n    \n    \ndef admin_r():\n    Alumni_id = SQLFORM.grid(db.user_log_in,user_signature=False)\n    Admin_id = SQLFORM.grid(db.admin_log_in,user_signature=False)\n    return locals()\n\ndef alumni_edit():\n    Details = FORM(TABLE(TR("Title",SELECT(\'Dr\',\'Mr\',\'Ms\',\'Mrs\',_name="title",requires=IS_IN_SET([\'yeas\',\'no\']))),\n                   TR("First Name:",INPUT(_type="text",_name="first_name",requires=IS_NOT_EMPTY())),\n                   TR("Last Name:",INPUT(_type="text",_name="last_name",requires=IS_NOT_EMPTY())),\n                   TR("Email id:",INPUT(_type="text",_name="email",requires=IS_EMAIL())),\n                   TR("Alternate Email:",INPUT(_type="text",_name="email",requires=IS_EMAIL())),\n                   TR("Phone No:",INPUT(_type="text",_name="phno",requires=IS_NOT_EMPTY())),\n                   TR("Date Of Birth:",INPUT(_type="string",_name="dob",_class="date")),\n                   TR("Current_Address_Line_1:",INPUT(_type="text",_name="Current_Address_Line_1",requires=IS_NOT_EMPTY())),\n                   TR("Current_Address_Line_2:",INPUT(_type="text",_name="Current_Address_Line_2",requires=IS_NOT_EMPTY())),\n                   TR("Current_City:",INPUT(_type="text",_name="Current_City",requires=IS_NOT_EMPTY())),\n                   TR("Current_State:",INPUT(_type="text",_name="Current_State",requires=IS_NOT_EMPTY())),\n                   TR("Current_Country:",INPUT(_type="text",_name="Current_Country",requires=IS_NOT_EMPTY())),\n                   TR("Current Emp Role:",INPUT(_type="text",_name="Current_Emp_Role",requires=IS_NOT_EMPTY())),\n                   TR("Current Comp/Org:",INPUT(_type="text",_name="Current_Company",requires=IS_NOT_EMPTY())),\n                   TR("Current Industry:",INPUT(_type="text",_name="Current_Industry",requires=IS_NOT_EMPTY())),\n                   TR("Current emp started from:",INPUT(_type="string",_name="Current_Emp_Started_From",_class="date"))),\n                   INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'insert\'))\n    IITG_Degree1=FORM(TABLE(\n                    TR("Degree",INPUT(_type="text",_name="deg",requires=IS_NOT_EMPTY())),\n                    TR("Department",INPUT(_type="text",_name="dept",requires=IS_NOT_EMPTY())),\n                    TR("Started_On",INPUT(_type="string",_name="start_year",_class="date")),\n                    TR("Graduated_On",INPUT(_type="string",_name="end_year",_class="date"))),\n                    INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'update1\'))\n    IITG_Degree2=FORM(TABLE(\n            TR("Degree",INPUT(_type="text",_name="deg",requires=IS_NOT_EMPTY())), \n            TR("Department",INPUT(_type="text",_name="dept",requires=IS_NOT_EMPTY())),\n            TR("Started_On",INPUT(_type="string",_name="start_year",_class="date")),\n            TR("Graduated_On",INPUT(_type="string",_name="end_year",_class="date"))),\n                      INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'update1\'))\n    IITG_Degree3=FORM(TABLE(\n            TR("Degree",INPUT(_type="text",_name="deg",requires=IS_NOT_EMPTY())), \n            TR("Department",INPUT(_type="text",_name="dept",requires=IS_NOT_EMPTY())),\n            TR("Started_On",INPUT(_type="string",_name="start_year",_class="date")),\n            TR("Graduated_On",INPUT(_type="string",_name="end_year",_class="date"))),\n                      INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'update1\'))\n    Other_School_Degree1=FORM(TABLE(\n            TR("Degree",INPUT(_type="text",_name="deg",requires=IS_NOT_EMPTY())), \n            TR("Department",INPUT(_type="text",_name="dept",requires=IS_NOT_EMPTY())),\n            TR("University",INPUT(_type="text",_name="univ",requires=IS_NOT_EMPTY())),\n            TR("Started_On",INPUT(_type="string",_name="start_year",_class="date")),\n            TR("Graduated_On",INPUT(_type="string",_name="end_year",_class="date"))),\n                      INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'update2\'))\n    Other_School_Degree2=FORM(TABLE(\n            TR("Degree",INPUT(_type="text",_name="deg",requires=IS_NOT_EMPTY())), \n            TR("Department",INPUT(_type="text",_name="dept",requires=IS_NOT_EMPTY())),\n            TR("University",INPUT(_type="text",_name="univ",requires=IS_NOT_EMPTY())),\n            TR("Started_On",INPUT(_type="string",_name="start_year",_class="date")),\n            TR("Graduated_On",INPUT(_type="string",_name="end_year",_class="date"))),\n                      INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'update2\'))\n    Other_School_Degree3=FORM(TABLE(\n            TR("Degree",INPUT(_type="text",_name="deg",requires=IS_NOT_EMPTY())), \n            TR("Department",INPUT(_type="text",_name="dept",requires=IS_NOT_EMPTY())),\n            TR("University",INPUT(_type="text",_name="univ",requires=IS_NOT_EMPTY())),\n            TR("Started_On",INPUT(_type="string",_name="start_year",_class="date")),\n            TR("Graduated_On",INPUT(_type="string",_name="end_year",_class="date"))),\n                      INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'update2\'))\n    Other_School_Degree4=FORM(TABLE(\n            TR("Degree",INPUT(_type="text",_name="deg",requires=IS_NOT_EMPTY())),\n            TR("Department",INPUT(_type="text",_name="dept",requires=IS_NOT_EMPTY())),\n            TR("University",INPUT(_type="text",_name="univ",requires=IS_NOT_EMPTY())),\n            TR("Started_On",INPUT(_type="string",_name="start_year",_class="date")),\n            TR("Graduated_On",INPUT(_type="string",_name="end_year",_class="date"))),\n                      INPUT(_type=\'submit\',value=\'Submit\'),_action=URL(\'update2\'))\n    return locals()\n\ndef insert():\n    row=request.vars\n    if db.alumni_basic_data(iitg_webmail_id=session.b)==None:\n        db.alumni_basic_data.insert(iitg_webmail_id=session.b,name_title=row.title,\n                                                                                name_first=row.first_name,name_last=row.last_name,\n                                                                                alternate_email_id=row.email,phone_no=row.phno,\n                                                                                dob=row.dob,curr_addr_line1=row.Current_Address_Line_1,\n                                                                                curr_addr_line2=row.Current_Address_Line_2,curr_addr_city=row.Current_City,\n                                                                                curr_addr_state=row.Current_State,curr_addr_country=row.Current_Country,\n                                                                                curr_emp_role=row.Current_Emp_Role, curr_emp_comp=row.Current_Company,\n                                                                                curr_emp_industry=row.Current_Industry,\n                                                                                cur_emp_start=row.Current_Emp_Started_From)\n        \n    else:\n        row2 = db(db.alumni_basic_data.iitg_webmail_id==session.b).update(name_title=row.title,\n                                                                                name_first=row.first_name,name_last=row.last_name,\n                                                                                alternate_email_id=row.email,phone_no=row.phno,\n                                                                                dob=row.dob,curr_addr_line1=row.Current_Address_Line_1,\n                                                                                curr_addr_line2=row.Current_Address_Line_2,curr_addr_city=row.Current_City,\n                                                                                curr_addr_state=row.Current_State,curr_addr_country=row.Current_Country,\n                                                                                curr_emp_role=row.Current_Emp_Role, curr_emp_comp=row.Current_Company,\n                                                                                curr_emp_industry=row.Current_Industry,\n                                                                                cur_emp_start=row.Current_Emp_Started_From)\n    form6=FORM(INPUT(_type=\'submit\',_value=\'Login\'))\n    return dict(form6=form6)\n\ndef update1():\n    row=request.vars\n    a1=0\n    x = db(db.iitg_deg.iitg_webmail_id==session.b).select()\n    for y in x:\n        if(y.deg==row.deg):\n            a1 = 10\n    if a1!=10:\n        session.flash=\'Invdadsdals\'\n        db.iitg_deg.insert(iitg_webmail_id=session.b,deg=row.deg,dept=row.dept,start_year=row.start_year,end_year=row.end_year)\n    else:\n        row2 = db(db.iitg_deg.iitg_webmail_id==session.b).select()\n        """\n           row2 = db(db.iitg_deg.iitg_webmail_id==session.b).update(dept=row.dept,start_year=row.start_year,end_year=row.end_year)\n        """\n        for rows in row2:\n            if (rows.deg==row.deg):\n                db((db.iitg_deg.iitg_webmail_id==session.b)&(db.iitg_deg.deg==row.deg)).update(dept=row.dept,start_year=row.start_year,end_year=row.end_year)\n    \n    form0=FORM(INPUT(_type=\'submit\',_value=\'update1\'))\n    return dict(form0=form0)\n\n\ndef update2():\n    row=request.vars\n    a1=0\n    x = db(db.othr_univ_degree.iitg_webmail_id==session.b).select()\n    for y in x:\n        if(y.deg==row.deg):\n            a1 = 10\n    if a1!=10:\n        session.flash=\'Invdadsdals\'\n        db.othr_univ_degree.insert(iitg_webmail_id=session.b,deg=row.deg,dept=row.dept,univ=row.univ,start_year=row.start_year,end_year=row.end_year)\n    else:\n        row2 = db(db.othr_univ_degree.iitg_webmail_id==session.b).select()\n        """\n           row2 = db(db.iitg_deg.iitg_webmail_id==session.b).update(dept=row.dept,start_year=row.start_year,end_year=row.end_year)\n        """\n        for rows in row2:\n            if (rows.deg==row.deg):\n                db((db.othr_univ_degree.iitg_webmail_id==session.b)&(db.othr_univ_degree.deg==row.deg)).update(dept=row.dept,univ=row.univ,start_year=row.start_year,end_year=row.end_year)\n    \n    form0=FORM(INPUT(_type=\'submit\',_value=\'update1\'))\n    return dict(form0=form0)\n\ndef alumni_search():\n    Details = FORM(TABLE(TR("Search By",SELECT(\'name\',\'place\',\'university\',\'firm\',_name="search_by")),\n                   TR("Search For:",INPUT(_type="text",_name="search",requires=IS_NOT_EMPTY()))),\n                    TR("",INPUT(_type="submit",_value="Search")))\n    if Details.accepts(request,session):\n        response.flash="form accepted"\n        session.x = Details.vars.search\n        session.y= Details.vars.search_by\n        if session.y==\'name\':\n            redirect(URL(\'search_name\'))\n        if session.y==\'place\':\n            redirect(URL(\'search_place\'))\n        if session.y==\'university\':\n            redirect(URL(\'search_university\'))\n        if session.y==\'firm\':\n            redirect(URL(\'search_firm\'))\n    elif Details.errors:\n        response.flash="form is invalid"\n    return locals()\ndef search_name():\n    rows=db(db.alumni_basic_data.name_first==session.x).select(db.alumni_basic_data.ALL)\n    return locals()\ndef search_place():\n    rows=db(db.alumni_basic_data.curr_addr_city==session.x).select(db.alumni_basic_data.ALL)\n    return locals()\ndef search_university():\n    rows=db(db.othr_univ_degree.univ==session.x).select(db.othr_univ_degree.ALL)\n    return locals()\ndef search_firm():\n    rows=db(db.alumni_basic_data.curr_emp_industry==session.x).select(db.alumni_basic_data.ALL)\n    return locals()\ndef show():\n    post = db(db.alumni_basic_data.iitg_webmail_id==request.args(0)).select(db.alumni_basic_data.ALL)\n    return locals()\ndef form():\n    form=FORM(TABLE(TR("Your name:",INPUT(_type="text",_name="name",requires=IS_NOT_EMPTY())),\n                    TR("Your email:",INPUT(_type="text",_name="email",requires=IS_EMAIL())),\n                    TR("Admin",INPUT(_type="checkbox",_name="admin")),\n                    TR("Sure?",SELECT(\'yes\',\'no\',_name="sure",requires=IS_IN_SET([\'yes\',\'no\']))),\n                    TR("Profile",TEXTAREA(_name="profile",value="write something here")),\n                    TR("",INPUT(_type="submit",_value="SUBMIT"))))\n    if form.accepts(request,session):\n        response.flash="form accepted"\n    elif form.errors:\n        response.flash="form is invalid"\n    else:\n        response.flash="please fill the form"\n    return dict(form=form,vars=form.vars)\n\ndef user():\n    """\n    exposes:\n    http://..../[app]/default/user/login\n    http://..../[app]/default/user/logout\n    http://..../[app]/default/user/register\n    http://..../[app]/default/user/profile\n    http://..../[app]/default/user/retrieve_password\n    http://..../[app]/default/user/change_password\n    http://..../[app]/default/user/manage_users (requires membership in\n    use @auth.requires_login()\n        @auth.requires_membership(\'group name\')\n        @auth.requires_permission(\'read\',\'table name\',record_id)\n    to decorate functions that need access control\n    """\n    redirect(URL(\'index\'))\n\n\n@cache.action()\ndef download():\n    """\n    allows downloading of uploaded files\n    http://..../[app]/default/download/[filename]\n    """\n    return response.download(request, db)\n\n\ndef call():\n    """\n    exposes services. for example:\n    http://..../[app]/default/call/jsonrpc\n    decorate with @services.jsonrpc the functions to expose\n    supports xml, json, xmlrpc, jsonrpc, amfrpc, rss, csv\n    """\n    return service()\n\n\n@auth.requires_login() \ndef api():\n    """\n    this is example of API with access control\n    WEB2PY provides Hypermedia API (Collection+JSON) Experimental\n    """\n    from gluon.contrib.hypermedia import Collection\n    rules = {\n        \'<tablename>\': {\'GET\':{},\'POST\':{},\'PUT\':{},\'DELETE\':{}},\n        }\n    return Collection(db).process(request,response,rules)\n\ndef prin():\n    row2 = db(db.alumni_basic_data.iitg_webmail_id==session.b).select().first()\n    return locals()\n\nresponse._vars=response._caller(update2)\n'
+p7
+sS'snapshot'
+p8
+(dp9
+S'exception'
+p10
+(dp11
+S'__module__'
+p12
+S"'sqlite3'"
+p13
+sS'__getslice__'
+p14
+S"<method-wrapper '__getslice__' of IntegrityError object>"
+p15
+sS'__str__'
+p16
+S"<method-wrapper '__str__' of IntegrityError object>"
+p17
+sS'__reduce__'
+p18
+S'<built-in method __reduce__ of IntegrityError object>'
+p19
+sS'__dict__'
+p20
+S'{}'
+p21
+sS'__sizeof__'
+p22
+S'<built-in method __sizeof__ of IntegrityError object>'
+p23
+sS'__weakref__'
+p24
+S'None'
+p25
+sS'__init__'
+p26
+S"<method-wrapper '__init__' of IntegrityError object>"
+p27
+sS'__setattr__'
+p28
+S"<method-wrapper '__setattr__' of IntegrityError object>"
+p29
+sS'__reduce_ex__'
+p30
+S'<built-in method __reduce_ex__ of IntegrityError object>'
+p31
+sS'__new__'
+p32
+S'<built-in method __new__ of type object>'
+p33
+sS'__format__'
+p34
+S'<built-in method __format__ of IntegrityError object>'
+p35
+sS'__class__'
+p36
+S"<class 'sqlite3.IntegrityError'>"
+p37
+sS'__doc__'
+p38
+S'None'
+p39
+sS'__getitem__'
+p40
+S"<method-wrapper '__getitem__' of IntegrityError object>"
+p41
+sS'__setstate__'
+p42
+S'<built-in method __setstate__ of IntegrityError object>'
+p43
+sS'__getattribute__'
+p44
+S"<method-wrapper '__getattribute__' of IntegrityError object>"
+p45
+sS'args'
+p46
+S"('NOT NULL constraint failed: othr_univ_degree.deg',)"
+p47
+sS'__subclasshook__'
+p48
+S'<built-in method __subclasshook__ of type object>'
+p49
+sS'__unicode__'
+p50
+S'<built-in method __unicode__ of IntegrityError object>'
+p51
+sS'__delattr__'
+p52
+S"<method-wrapper '__delattr__' of IntegrityError object>"
+p53
+sS'__repr__'
+p54
+S"<method-wrapper '__repr__' of IntegrityError object>"
+p55
+sS'__hash__'
+p56
+S"<method-wrapper '__hash__' of IntegrityError object>"
+p57
+ssS'evalue'
+p58
+S'NOT NULL constraint failed: othr_univ_degree.deg'
+p59
+sS'request'
+p60
+cgluon.html
+XML_unpickle
+p61
+(S's\ne\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">ajax</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">application</td><td style="vertical-align:top;">:</td><td><div>final2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cid</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">controller</td><td style="vertical-align:top;">:</td><td><div>default</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_admin</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-2e0ddd25-1943-42a2-bc71-35baa40614a4<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_final2</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-d11777e0-20b7-4f8a-aea7-286648d60571<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_welcome</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-f21d350e-a588-4e6e-8e37-3850f914de57<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">env</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">CONTENT_LENGTH</td><td style="vertical-align:top;">:</td><td><div>62</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">CONTENT_TYPE</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=---------------------------15382467741650190156148647656</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_ENCODING</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_ACCEPT_LANGUAGE</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONNECTION</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONTENT_LENGTH</td><td style="vertical-align:top;">:</td><td><div>62</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_CONTENT_TYPE</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=---------------------------15382467741650190156148647656</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_COOKIE</td><td style="vertical-align:top;">:</td><td><div>session_id_welcome=127.0.0.1-f21d350e-a588-4e6e-8e37-3850f914de57; session_id_admin=127.0.0.1-2e0ddd25-1943-42a2-bc71-35baa40614a4; session_id_final2=127.0.0.1-d11777e0-20b7-4f8a-aea7-286648d60571</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_HOST</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_REFERER</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000/final2/default/update2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">HTTP_USER_AGENT</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">PATH_INFO</td><td style="vertical-align:top;">:</td><td><div>/final2/default/update2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">QUERY_STRING</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_ADDR</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REMOTE_PORT</td><td style="vertical-align:top;">:</td><td><div>35701</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">REQUEST_METHOD</td><td style="vertical-align:top;">:</td><td><div>POST</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SCRIPT_NAME</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_NAME</td><td style="vertical-align:top;">:</td><td><div>greeshma-Inspiron-7520</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PORT</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_PROTOCOL</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">SERVER_SOFTWARE</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/greeshma/Downloads/web2py/applications/welcome/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/mrng/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/prof/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/login41/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/login_l/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/final/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/final2/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/examples/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/login/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/greeshma/Downloads/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x7f5eeb8e7ef0: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;greeshma-Inspiron-7520&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;print_errors&#x27;: False, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/greeshma/Downloads/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;&lt;ask&gt;&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">content_length</td><td style="vertical-align:top;">:</td><td><div>62</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">content_type</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=---------------------------15382467741650190156148647656</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/greeshma/Downloads/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept</td><td style="vertical-align:top;">:</td><td><div>text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_encoding</td><td style="vertical-align:top;">:</td><td><div>gzip, deflate</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_accept_language</td><td style="vertical-align:top;">:</td><td><div>en-US,en;q=0.5</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_connection</td><td style="vertical-align:top;">:</td><td><div>keep-alive</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_content_length</td><td style="vertical-align:top;">:</td><td><div>62</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_content_type</td><td style="vertical-align:top;">:</td><td><div>multipart/form-data; boundary=---------------------------15382467741650190156148647656</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_cookie</td><td style="vertical-align:top;">:</td><td><div>session_id_welcome=127.0.0.1-f21d350e-a588-4e6e-8e37-3850f914de57; session_id_admin=127.0.0.1-2e0ddd25-1943-42a2-bc71-35baa40614a4; session_id_final2=127.0.0.1-d11777e0-20b7-4f8a-aea7-286648d60571</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_host</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1:8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_referer</td><td style="vertical-align:top;">:</td><td><div>http://127.0.0.1:8000/final2/default/update2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">http_user_agent</td><td style="vertical-align:top;">:</td><td><div>Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>greeshma-Inspiron-7520</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path_info</td><td style="vertical-align:top;">:</td><td><div>/final2/default/update2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">query_string</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_addr</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">remote_port</td><td style="vertical-align:top;">:</td><td><div>35701</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_method</td><td style="vertical-align:top;">:</td><td><div>POST</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">request_uri</td><td style="vertical-align:top;">:</td><td><div>/final2/default/update2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">script_name</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_name</td><td style="vertical-align:top;">:</td><td><div>greeshma-Inspiron-7520</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_port</td><td style="vertical-align:top;">:</td><td><div>8000</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_protocol</td><td style="vertical-align:top;">:</td><td><div>HTTP/1.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">server_software</td><td style="vertical-align:top;">:</td><td><div>Rocket 1.2.6</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_path</td><td style="vertical-align:top;">:</td><td><div>/home/greeshma/Downloads/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.10.1-stable+timestamp.2015.04.01.03.27.40</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x7f5ef297b1e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x7f5eeb9013f8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x7f5eb2768e50&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi.version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_errors</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;&lt;stderr&gt;&#x27;, mode &#x27;w&#x27; at 0x7f5ef297b1e0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_file_wrapper</td><td style="vertical-align:top;">:</td><td><div>&lt;class wsgiref.util.FileWrapper at 0x7f5eeb9013f8&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_input</td><td style="vertical-align:top;">:</td><td><div>&lt;socket._fileobject object at 0x7f5eb2768e50&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multiprocess</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_multithread</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_run_once</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_url_scheme</td><td style="vertical-align:top;">:</td><td><div>http</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi_version</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>1</div></td></tr><tr><td><div>0</div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">extension</td><td style="vertical-align:top;">:</td><td><div>html</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">folder</td><td style="vertical-align:top;">:</td><td><div>/home/greeshma/Downloads/web2py/applications/final2/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">function</td><td style="vertical-align:top;">:</td><td><div>update2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">global_settings</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">app_folders</td><td style="vertical-align:top;">:</td><td><div>set([&#x27;/home/greeshma/Downloads/web2py/applications/welcome/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/mrng/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/prof/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/login41/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/login_l/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/final/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/final2/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/examples/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/login/&#x27;, &#x27;/home/greeshma/Downloads/web2py/applications/admin/&#x27;])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">applications_parent</td><td style="vertical-align:top;">:</td><td><div>/home/greeshma/Downloads/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_args</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cmd_options</td><td style="vertical-align:top;">:</td><td><div>&lt;Values at 0x7f5eeb8e7ef0: {&#x27;verbose&#x27;: False, &#x27;ip&#x27;: &#x27;127.0.0.1&#x27;, &#x27;debuglevel&#x27;: 30, &#x27;with_scheduler&#x27;: False, &#x27;ips&#x27;: [&#x27;127.0.1.1&#x27;], &#x27;shutdown_timeout&#x27;: 5, &#x27;taskbar&#x27;: False, &#x27;with_coverage&#x27;: False, &#x27;scheduler_groups&#x27;: None, &#x27;port&#x27;: 8000, &#x27;maxthreads&#x27;: None, &#x27;softcron&#x27;: False, &#x27;server_name&#x27;: &#x27;greeshma-Inspiron-7520&#x27;, &#x27;bpython&#x27;: False, &#x27;nogui&#x27;: False, &#x27;pid_filename&#x27;: &#x27;httpserver.pid&#x27;, &#x27;print_errors&#x27;: False, &#x27;extcron&#x27;: False, &#x27;runcron&#x27;: False, &#x27;run_system_tests&#x27;: False, &#x27;test&#x27;: None, &#x27;folder&#x27;: &#x27;/home/greeshma/Downloads/web2py&#x27;, &#x27;config&#x27;: &#x27;&#x27;, &#x27;minthreads&#x27;: None, &#x27;shell&#x27;: None, &#x27;run&#x27;: &#x27;&#x27;, &#x27;log_filename&#x27;: &#x27;httpserver.log&#x27;, &#x27;profiler_dir&#x27;: None, &#x27;args&#x27;: [&#x27;&#x27;], &#x27;socket_timeout&#x27;: 5, &#x27;ssl_ca_certificate&#x27;: None, &#x27;scheduler&#x27;: None, &#x27;interfaces&#x27;: None, &#x27;ssl_private_key&#x27;: &#x27;&#x27;, &#x27;gae&#x27;: None, &#x27;password&#x27;: &#x27;&lt;ask&gt;&#x27;, &#x27;request_queue_size&#x27;: 5, &#x27;ssl_certificate&#x27;: &#x27;&#x27;, &#x27;cronjob&#x27;: False, &#x27;numthreads&#x27;: None, &#x27;quiet&#x27;: False, &#x27;import_models&#x27;: False, &#x27;timeout&#x27;: 10, &#x27;plain&#x27;: False, &#x27;nobanner&#x27;: False}&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">db_sessions</td><td style="vertical-align:top;">:</td><td><div>set([])</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">debugging</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">gluon_parent</td><td style="vertical-align:top;">:</td><td><div>/home/greeshma/Downloads/web2py</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_jython</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_pypy</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_source</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">local_hosts</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>greeshma-Inspiron-7520</div></td></tr><tr><td><div>::1</div></td></tr><tr><td><div>127.0.1.1</div></td></tr><tr><td><div>::ffff:127.0.0.1</div></td></tr><tr><td><div>127.0.0.1</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">web2py_version</td><td style="vertical-align:top;">:</td><td><div>2.10.1-stable+timestamp.2015.04.01.03.27.40</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_https</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_local</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_restful</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_sheduler</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">is_shell</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">now</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2015, 4, 5, 23, 5, 44, 909378)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_args</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">raw_extension</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">url</td><td style="vertical-align:top;">:</td><td><div>/final2/default/update2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">utcnow</td><td style="vertical-align:top;">:</td><td><div>datetime.datetime(2015, 4, 5, 17, 35, 44, 909406)</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">uuid</td><td style="vertical-align:top;">:</td><td><div>final2/127.0.0.1.2015-04-05.23-05-44.41447079-12da-4d2d-a5c3-5b71228ce131</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">wsgi</td><td style="vertical-align:top;">:</td><td><div>&lt;gluon.main.LazyWSGI object at 0x7f5eb13fc590&gt;</div></td></tr></table></div>'
+tRp62
+sS'frames'
+p63
+(lp64
+(dp65
+S'file'
+p66
+S'/home/greeshma/Downloads/web2py/gluon/restricted.py'
+p67
+sS'dump'
+p68
+(dp69
+S'environment'
+p70
+S"{'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'ASSIGNJS': <function ASSIGNJS>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, ...}"
+p71
+sS'ccode'
+p72
+S'<code object <module> at 0x7f5eb1469030, file "/...ications/final2/controllers/default.py", line 12>'
+p73
+ssS'lnum'
+p74
+I227
+sS'lines'
+p75
+(dp76
+I224
+S'            ccode = code'
+p77
+sI225
+S'        else:'
+p78
+sI226
+S'            ccode = compile2(code, layer)'
+p79
+sI227
+S'        exec ccode in environment'
+p80
+sI228
+S'    except HTTP:'
+p81
+sI229
+S'        raise'
+p82
+sI230
+S'    except RestrictedError:'
+p83
+sI231
+S'        # do not encapsulate (obfuscate) the original RestrictedError'
+p84
+sI222
+S'    try:'
+p85
+sI223
+S'        if isinstance(code, types.CodeType):'
+p86
+ssS'call'
+p87
+S"(code='# -*- coding: utf-8 -*-\\n# this file is released ...cals()\\n\\nresponse._vars=response._caller(update2)\\n', environment={'A': <class 'gluon.html.A'>, 'ANY_OF': <class 'gluon.validators.ANY_OF'>, 'ASSIGNJS': <function ASSIGNJS>, 'Auth': <class 'gluon.tools.Auth'>, 'B': <class 'gluon.html.B'>, 'BEAUTIFY': <class 'gluon.html.BEAUTIFY'>, 'BODY': <class 'gluon.html.BODY'>, 'BR': <class 'gluon.html.BR'>, 'BUTTON': <class 'gluon.html.BUTTON'>, 'CAT': <class 'gluon.html.CAT'>, ...}, layer='/home/greeshma/Downloads/web2py/applications/final2/controllers/default.py')"
+p88
+sS'func'
+p89
+S'restricted'
+p90
+sa(dp91
+g66
+S'/home/greeshma/Downloads/web2py/applications/final2/controllers/default.py'
+p92
+sg68
+(dp93
+sg74
+I357
+sg75
+(dp94
+I352
+S''
+sI353
+S'def prin():'
+p95
+sI354
+S'    row2 = db(db.alumni_basic_data.iitg_webmail_id==session.b).select().first()'
+p96
+sI355
+S'    return locals()'
+p97
+sI346
+S'    """'
+p98
+sI347
+S'    from gluon.contrib.hypermedia import Collection'
+p99
+sI348
+S'    rules = {'
+p100
+sI349
+S"        '<tablename>': {'GET':{},'POST':{},'PUT':{},'DELETE':{}},"
+p101
+sI350
+S'        }'
+p102
+sI351
+S'    return Collection(db).process(request,response,rules)'
+p103
+ssg87
+S'()'
+p104
+sg89
+S'<module>'
+p105
+sa(dp106
+g66
+S'/home/greeshma/Downloads/web2py/gluon/globals.py'
+p107
+sg68
+(dp108
+S'self'
+p109
+S'undefined'
+p110
+sS'f'
+S'<function update2>'
+p111
+ssg74
+I393
+sg75
+(dp112
+I388
+S"        self.flash = ''            # used by the default view layout"
+p113
+sI389
+S'        self.meta = Storage()      # used by web2py_ajax.html'
+p114
+sI390
+S'        self.menu = []             # used by the default view layout'
+p115
+sI391
+S'        self.files = []            # used by web2py_ajax.html'
+p116
+sI392
+S'        self._vars = None'
+p117
+sI393
+S'        self._caller = lambda f: f()'
+p118
+sI394
+S'        self._view_environment = None'
+p119
+sI395
+S'        self._custom_commit = None'
+p120
+sI396
+S'        self._custom_rollback = None'
+p121
+sI397
+S"        self.generic_patterns = ['*']"
+p122
+ssg87
+S'(f=<function update2>)'
+p123
+sg89
+S'<lambda>'
+p124
+sa(dp125
+g66
+S'/home/greeshma/Downloads/web2py/applications/final2/controllers/default.py'
+p126
+sg68
+(dp127
+S'iitg_webmail_id'
+p128
+g110
+sS'global session'
+p129
+S"<Storage {'a': '1234', 'c': 2, 'b': 'sharath@gma...ate]': ['15b8fec2-3e19-4d6e-a0a3-652b419fa4a3']}>"
+p130
+sS'dept'
+p131
+g110
+sS'start_year'
+p132
+g110
+sS'row.start_year'
+p133
+S'None'
+p134
+sS'row.univ'
+p135
+S'None'
+p136
+sS'db.othr_univ_degree'
+p137
+S'<Table othr_univ_degree (iitg_webmail_id,deg,dept,univ,start_year,end_year)>'
+p138
+sS'row.end_year'
+p139
+S'None'
+p140
+sS'row.deg'
+p141
+S'None'
+p142
+sS'row.dept'
+p143
+S'None'
+p144
+sS'db.othr_univ_degree.insert'
+p145
+S'<bound method Table.insert of <Table othr_univ_d...g_webmail_id,deg,dept,univ,start_year,end_year)>>'
+p146
+sS'end_year'
+p147
+g110
+sS'global db'
+p148
+S'<DAL uri="sqlite://storage.sqlite">'
+p149
+sS'row'
+p150
+S'<Storage {}>'
+p151
+sS'univ'
+p152
+g110
+sS'session.b'
+p153
+S"'sharath@gmail.com'"
+p154
+sS'deg'
+p155
+g110
+ssg74
+I242
+sg75
+(dp156
+I237
+S'    for y in x:'
+p157
+sI238
+S'        if(y.deg==row.deg):'
+p158
+sI239
+S'            a1 = 10'
+p159
+sI240
+S'    if a1!=10:'
+p160
+sI241
+S"        session.flash='Invdadsdals'"
+p161
+sI242
+S'        db.othr_univ_degree.insert(iitg_webmail_id=session.b,deg=row.deg,dept=row.dept,univ=row.univ,start_year=row.start_year,end_year=row.end_year)'
+p162
+sI243
+S'    else:'
+p163
+sI244
+S'        row2 = db(db.othr_univ_degree.iitg_webmail_id==session.b).select()'
+p164
+sI245
+S'        """'
+p165
+sI246
+S'           row2 = db(db.iitg_deg.iitg_webmail_id==session.b).update(dept=row.dept,start_year=row.start_year,end_year=row.end_year)'
+p166
+ssg87
+S'()'
+p167
+sg89
+S'update2'
+p168
+sa(dp169
+g66
+S'/home/greeshma/Downloads/web2py/gluon/packages/dal/pydal/objects.py'
+p170
+sg68
+(dp171
+S'self._listify'
+p172
+S'<bound method Table._listify of <Table othr_univ...g_webmail_id,deg,dept,univ,start_year,end_year)>>'
+p173
+sS'fields'
+p174
+S"{'deg': None, 'dept': None, 'end_year': None, 'iitg_webmail_id': 'sharath@gmail.com', 'start_year': None, 'univ': None}"
+p175
+sS'self'
+p176
+S'<Table othr_univ_degree (iitg_webmail_id,deg,dept,univ,start_year,end_year)>'
+p177
+sS'ret'
+p178
+g110
+sS'self._db._adapter'
+p179
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p180
+sS'self._db._adapter.insert'
+p181
+S'<bound method SQLiteAdapter.insert of <pydal.adapters.sqlite.SQLiteAdapter object>>'
+p182
+sS'self._db'
+p183
+S'<DAL uri="sqlite://storage.sqlite">'
+p184
+ssg74
+I745
+sg75
+(dp185
+I740
+S''
+sI741
+S'    def insert(self, **fields):'
+p186
+sI742
+S'        fields = self._defaults(fields)'
+p187
+sI743
+S'        self._attempt_upload(fields)'
+p188
+sI744
+S'        if any(f(fields) for f in self._before_insert): return 0'
+p189
+sI745
+S'        ret =  self._db._adapter.insert(self, self._listify(fields))'
+p190
+sI746
+S'        if ret and self._after_insert:'
+p191
+sI747
+S'            fields = Row(fields)'
+p192
+sI748
+S'            [f(fields,ret) for f in self._after_insert]'
+p193
+sI749
+S'        return ret'
+p194
+ssg87
+S"(self=<Table othr_univ_degree (iitg_webmail_id,deg,dept,univ,start_year,end_year)>, **fields={'deg': None, 'dept': None, 'end_year': None, 'iitg_webmail_id': 'sharath@gmail.com', 'start_year': None, 'univ': None})"
+p195
+sg89
+S'insert'
+p196
+sa(dp197
+g66
+S'/home/greeshma/Downloads/web2py/gluon/packages/dal/pydal/adapters/base.py'
+p198
+sg68
+(dp199
+S'e'
+S"IntegrityError('NOT NULL constraint failed: othr_univ_degree.deg',)"
+p200
+ssg74
+I727
+sg75
+(dp201
+I722
+S'            self.execute(query)'
+p202
+sI723
+S'        except Exception:'
+p203
+sI724
+S'            e = sys.exc_info()[1]'
+p204
+sI725
+S"            if hasattr(table,'_on_insert_error'):"
+p205
+sI726
+S'                return table._on_insert_error(table,fields,e)'
+p206
+sI727
+S'            raise e'
+p207
+sI728
+S"        if hasattr(table, '_primarykey'):"
+p208
+sI729
+S'            mydict = dict([(k[0].name, k[1]) for k in fields if k[0].name in table._primarykey])'
+p209
+sI730
+S'            if mydict != {}:'
+p210
+sI731
+S'                return mydict'
+p211
+ssg87
+S"(self=<pydal.adapters.sqlite.SQLiteAdapter object>, table=<Table othr_univ_degree (iitg_webmail_id,deg,dept,univ,start_year,end_year)>, fields=[(<pydal.objects.Field object>, 'sharath@gmail.com'), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None)])"
+p212
+sg89
+g196
+sasS'pyver'
+p213
+S'Python 2.7.6: /usr/bin/python (prefix: /usr)'
+p214
+sS'session'
+p215
+g61
+(S's\x98\x03\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">a</td><td style="vertical-align:top;">:</td><td><div>1234</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">b</td><td style="vertical-align:top;">:</td><td><div>sharath@gmail.com</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">c</td><td style="vertical-align:top;">:</td><td><div>2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">d</td><td style="vertical-align:top;">:</td><td><div>2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">e</td><td style="vertical-align:top;">:</td><td><div>2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">f</td><td style="vertical-align:top;">:</td><td><div>1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div>Invdadsdals</div></td></tr></table></div>'
+tRp216
+sS'etype'
+p217
+S"<class 'sqlite3.IntegrityError'>"
+p218
+sS'date'
+p219
+S'Sun Apr  5 23:05:44 2015'
+p220
+sS'response'
+p221
+g61
+(S's\xdc4\x00\x00<div><table><tr><td style="font-weight:bold;vertical-align:top;">body</td><td style="vertical-align:top;">:</td><td><div>&lt;cStringIO.StringO object at 0x7f5eb1457d18&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">cookies</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">session_id_final2</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-d11777e0-20b7-4f8a-aea7-286648d60571<table><tr><td style="font-weight:bold;vertical-align:top;">comment</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">domain</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">expires</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">httponly</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">max-age</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">path</td><td style="vertical-align:top;">:</td><td><div>/</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">secure</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">version</td><td style="vertical-align:top;">:</td><td><div></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">delimiters</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>{{</div></td></tr><tr><td><div>}}</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">files</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">flash</td><td style="vertical-align:top;">:</td><td><div>Invdadsdals</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">form_label_separator</td><td style="vertical-align:top;">:</td><td><div>: </div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">formstyle</td><td style="vertical-align:top;">:</td><td><div>table3cols</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generic_patterns</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>*</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">google_analytics_id</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">headers</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">X-Powered-By</td><td style="vertical-align:top;">:</td><td><div>web2py</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">logo</td><td style="vertical-align:top;">:</td><td><div><a class="brand" href="http://iitg.ernet.in/"><b>SAIL</b>&nbsp;</a></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div><table><tr><td><div>Home</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/final2/default/index</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div><span class="highlighted">web2py</span></div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>http://web2py.com</div></td></tr><tr><td><div><table><tr><td><div><table><tr><td><div>My Sites</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/admin/default/site</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>This App</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/admin/default/design/final2</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Controller&#x27;&gt;, False, &#x27;/admin/default/edit/final2/controllers/default.py&#x27;), (&lt;lazyT &#x27;View&#x27;&gt;, False, &#x27;/admin/default/edit/final2/views/default/update2.html&#x27;), (&lt;lazyT &#x27;Layout&#x27;&gt;, False, &#x27;/admin/default/edit/final2/views/layout.html&#x27;), (&lt;lazyT &#x27;Stylesheet&#x27;&gt;, False, &#x27;/admin/default/edit/final2/static/css/web2py.css&#x27;), (&lt;lazyT &#x27;DB Model&#x27;&gt;, False, &#x27;/admin/default/edit/final2/models/db.py&#x27;), (&lt;lazyT &#x27;Menu Model&#x27;&gt;, False, &#x27;/admin/default/edit/final2/models/menu.py&#x27;), (&lt;lazyT &#x27;Database&#x27;&gt;, False, &#x27;/final2/appadmin/index&#x27;), (&lt;lazyT &#x27;Errors&#x27;&gt;, False, &#x27;/admin/default/errors/final2&#x27;), (&lt;lazyT &#x27;About&#x27;&gt;, False, &#x27;/admin/default/about/final2&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>web2py.com</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>http://www.web2py.com</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Download&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/download&#x27;), (&lt;lazyT &#x27;Support&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/support&#x27;), (&lt;lazyT &#x27;Demo&#x27;&gt;, False, &#x27;http://web2py.com/demo_admin&#x27;), (&lt;lazyT &#x27;Quick Examples&#x27;&gt;, False, &#x27;http://web2py.com/examples/default/examples&#x27;), (&lt;lazyT &#x27;FAQ&#x27;&gt;, False, &#x27;http://web2py.com/AlterEgo&#x27;), (&lt;lazyT &#x27;Videos&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/videos/&#x27;), (&lt;lazyT &#x27;Free Applications&#x27;&gt;, False, &#x27;http://web2py.com/appliances&#x27;), (&lt;lazyT &#x27;Plugins&#x27;&gt;, False, &#x27;http://web2py.com/plugins&#x27;), (&lt;lazyT &#x27;Layouts&#x27;&gt;, False, &#x27;http://web2py.com/layouts&#x27;), (&lt;lazyT &#x27;Recipes&#x27;&gt;, False, &#x27;http://web2pyslices.com/&#x27;), (&lt;lazyT &#x27;Semantic&#x27;&gt;, False, &#x27;http://web2py.com/semantic&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Documentation</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>http://www.web2py.com/book</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Preface&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/00&#x27;), (&lt;lazyT &#x27;Introduction&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/01&#x27;), (&lt;lazyT &#x27;Python&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/02&#x27;), (&lt;lazyT &#x27;Overview&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/03&#x27;), (&lt;lazyT &#x27;The Core&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/04&#x27;), (&lt;lazyT &#x27;The Views&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/05&#x27;), (&lt;lazyT &#x27;Database&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/06&#x27;), (&lt;lazyT &#x27;Forms and Validators&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/07&#x27;), (&lt;lazyT &#x27;Email and SMS&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/08&#x27;), (&lt;lazyT &#x27;Access Control&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/09&#x27;), (&lt;lazyT &#x27;Services&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/10&#x27;), (&lt;lazyT &#x27;Ajax Recipes&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/11&#x27;), (&lt;lazyT &#x27;Components and Plugins&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/12&#x27;), (&lt;lazyT &#x27;Deployment Recipes&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/13&#x27;), (&lt;lazyT &#x27;Other Recipes&#x27;&gt;, False, &#x27;http://www.web2py.com/book/default/chapter/14&#x27;), (&lt;lazyT &#x27;Buy this book&#x27;&gt;, False, &#x27;http://stores.lulu.com/web2py&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Community</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>None</div></td></tr><tr><td><div>[(&lt;lazyT &#x27;Groups&#x27;&gt;, False, &#x27;http://www.web2py.com/examples/default/usergroups&#x27;), (&lt;lazyT &#x27;Twitter&#x27;&gt;, False, &#x27;http://twitter.com/web2py&#x27;), (&lt;lazyT &#x27;Live Chat&#x27;&gt;, False, &#x27;http://webchat.freenode.net/?channels=web2py&#x27;)]</div></td></tr></table></div></td></tr><tr><td><div><table><tr><td><div>Plugins</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>None</div></td></tr><tr><td><div>[(&#x27;plugin_wiki&#x27;, False, &#x27;http://web2py.com/examples/default/download&#x27;), (&lt;lazyT &#x27;Other Plugins&#x27;&gt;, False, &#x27;http://web2py.com/plugins&#x27;), (&lt;lazyT &#x27;Layout Plugins&#x27;&gt;, False, &#x27;http://web2py.com/layouts&#x27;)]</div></td></tr></table></div></td></tr></table></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">menu_logout</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div><table><tr><td><div>Home</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/final2/default/index</div></td></tr><tr><td><div>Edit</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/final2/default/index</div></td></tr><tr><td><div>Search</div></td></tr><tr><td><div>False</div></td></tr><tr><td><div>/final2/default/index</div></td></tr><tr><td><div><table></table></div></td></tr></table></div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">meta</td><td style="vertical-align:top;">:</td><td><div><table><tr><td style="font-weight:bold;vertical-align:top;">author</td><td style="vertical-align:top;">:</td><td><div>Your Name &lt;you@example.com&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">generator</td><td style="vertical-align:top;">:</td><td><div>Web2py Web Framework</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">keywords</td><td style="vertical-align:top;">:</td><td><div>web2py, python, framework</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">models_to_run</td><td style="vertical-align:top;">:</td><td><div><table><tr><td><div>^\\w+\\.py$</div></td></tr><tr><td><div>^default/\\w+\\.py$</div></td></tr><tr><td><div>^default/update2/\\w+\\.py$</div></td></tr></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">postprocessing</td><td style="vertical-align:top;">:</td><td><div><table></table></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_client</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_compression_level</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_expires</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_cookie_key</td><td style="vertical-align:top;">:</td><td><div>None</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_data_name</td><td style="vertical-align:top;">:</td><td><div>session_data_final2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_file</td><td style="vertical-align:top;">:</td><td><div>&lt;open file &#x27;/home/greeshma/Downloads/web2py/applications/final2/sessions/1f4/1c1/127.0.0.1-d11777e0-20b7-4f8a-aea7-286648d60571&#x27;, mode &#x27;rb+&#x27; at 0x7f5eb1408ed0&gt;</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_filename</td><td style="vertical-align:top;">:</td><td><div>/home/greeshma/Downloads/web2py/applications/final2/sessions/127.0.0.1-d11777e0-20b7-4f8a-aea7-286648d60571</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_hash</td><td style="vertical-align:top;">:</td><td><div>e2ced64e38259d85b765c6e126acee2e</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id</td><td style="vertical-align:top;">:</td><td><div>127.0.0.1-d11777e0-20b7-4f8a-aea7-286648d60571</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_id_name</td><td style="vertical-align:top;">:</td><td><div>session_id_final2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_locked</td><td style="vertical-align:top;">:</td><td><div>True</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_masterapp</td><td style="vertical-align:top;">:</td><td><div>final2</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_new</td><td style="vertical-align:top;">:</td><td><div>False</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">session_storage_type</td><td style="vertical-align:top;">:</td><td><div>file</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">status</td><td style="vertical-align:top;">:</td><td><div>200</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">subtitle</td><td style="vertical-align:top;">:</td><td><div></div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">title</td><td style="vertical-align:top;">:</td><td><div>Welcome</div></td></tr><tr><td style="font-weight:bold;vertical-align:top;">view</td><td style="vertical-align:top;">:</td><td><div>default/update2.html</div></td></tr></table></div>'
+tRp222
+sS'locals'
+p223
+(dp224
+S'fields'
+p225
+S"[(<pydal.objects.Field object>, 'sharath@gmail.com'), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None), (<pydal.objects.Field object>, None)]"
+p226
+sS'self'
+p227
+S'<pydal.adapters.sqlite.SQLiteAdapter object>'
+p228
+sS'e'
+S"IntegrityError('NOT NULL constraint failed: othr_univ_degree.deg',)"
+p229
+sS'table'
+p230
+S'<Table othr_univ_degree (iitg_webmail_id,deg,dept,univ,start_year,end_year)>'
+p231
+sS'query'
+p232
+S'"INSERT INTO othr_univ_degree(iitg_webmail_id,end...S (\'sharath@gmail.com\',NULL,NULL,NULL,NULL,NULL);"'
+p233
+sssS'traceback'
+p234
+S'Traceback (most recent call last):\n  File "/home/greeshma/Downloads/web2py/gluon/restricted.py", line 227, in restricted\n    exec ccode in environment\n  File "/home/greeshma/Downloads/web2py/applications/final2/controllers/default.py", line 357, in <module>\n  File "/home/greeshma/Downloads/web2py/gluon/globals.py", line 393, in <lambda>\n    self._caller = lambda f: f()\n  File "/home/greeshma/Downloads/web2py/applications/final2/controllers/default.py", line 242, in update2\n    db.othr_univ_degree.insert(iitg_webmail_id=session.b,deg=row.deg,dept=row.dept,univ=row.univ,start_year=row.start_year,end_year=row.end_year)\n  File "/home/greeshma/Downloads/web2py/gluon/packages/dal/pydal/objects.py", line 745, in insert\n    ret =  self._db._adapter.insert(self, self._listify(fields))\n  File "/home/greeshma/Downloads/web2py/gluon/packages/dal/pydal/adapters/base.py", line 727, in insert\n    raise e\nIntegrityError: NOT NULL constraint failed: othr_univ_degree.deg\n'
+p235
+s.
